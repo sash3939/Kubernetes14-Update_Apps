@@ -199,8 +199,51 @@ status:
 ```
 
 2. Обновить версию nginx в приложении до версии 1.20, сократив время обновления до минимума. Приложение должно быть доступно.
+
+[deployment-nginx1.20.yaml](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/deployment-nginx1.20.yaml)
+
+<img width="634" alt="update to 1 20 nginx" src="https://github.com/user-attachments/assets/d27bfea1-534c-4e97-a51a-b49c431fa13d">
+
 3. Попытаться обновить nginx до версии 1.28, приложение должно оставаться доступным.
+
+[deployment-nginx1.28.yaml](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/deployment-nginx1.28.yaml)
+
+<img width="542" alt="try to update to 1 28" src="https://github.com/user-attachments/assets/fab7316f-3b10-4b14-a7bb-5532854c5020">
+
 4. Откатиться после неудачного обновления.
+
+```bash
+root@kuber:~/Kubernetes14-Update_Apps# kubectl rollout undo deployment nginx-multitool
+deployment.apps/nginx-multitool rolled back
+root@kuber:~/Kubernetes14-Update_Apps# kubectl rollout status deployment nginx-multitool
+Waiting for deployment "nginx-multitool" rollout to finish: 2 of 5 updated replicas are available...
+Waiting for deployment "nginx-multitool" rollout to finish: 3 of 5 updated replicas are available...
+Waiting for deployment "nginx-multitool" rollout to finish: 4 of 5 updated replicas are available...
+deployment "nginx-multitool" successfully rolled out
+root@kuber:~/Kubernetes14-Update_Apps# kubectl get pods
+NAME                              READY   STATUS    RESTARTS       AGE
+deployment-hostpath-dbcrx         1/1     Running   15 (77m ago)   15d
+deployment-nfs-77d89d459c-c9487   1/1     Running   14 (77m ago)   15d
+multitool-5c8c7c469-mxxq8         2/2     Running   26 (77m ago)   13d
+myapp-pod-8569b59bf7-h5vzt        1/1     Running   9 (77m ago)    11d
+nginx-multitool-756b8d65c-2w4dx   2/2     Running   0              23s
+nginx-multitool-756b8d65c-g7lwv   2/2     Running   0              13m
+nginx-multitool-756b8d65c-hjk5h   2/2     Running   0              23s
+nginx-multitool-756b8d65c-hvwmw   2/2     Running   0              13m
+nginx-multitool-756b8d65c-mhhnc   2/2     Running   0              23s
+testhttps-8569b59bf7-lpmhb        1/1     Running   12 (77m ago)   13d
+root@kuber:~/Kubernetes14-Update_Apps# kubectl describe deployment nginx-multitool | grep nginx
+Name:                   nginx-multitool
+Selector:               app=nginx-multitool
+  Labels:  app=nginx-multitool
+   nginx:
+    Image:        nginx:1.20
+OldReplicaSets:  nginx-multitool-6bbd4c4d6f (0/0 replicas created), nginx-multitool-5d98558b9c (0/0 replicas created)
+NewReplicaSet:   nginx-multitool-756b8d65c (5/5 replicas created)
+  Normal  ScalingReplicaSet  39s (x2 over 13m)  deployment-controller  Scaled up replica set nginx-multitool-756b8d65c to 5 from 2
+  Normal  ScalingReplicaSet  39s                deployment-controller  Scaled down replica set nginx-multitool-5d98558b9c to 0 from 5
+root@kuber:~/Kubernetes14-Update_Apps# 
+```
 
 ## Дополнительные задания — со звёздочкой*
 
@@ -209,7 +252,30 @@ status:
 ### Задание 3*. Создать Canary deployment
 
 1. Создать два deployment'а приложения nginx.
+
+Создаем деплойменты ngnix, пусть они будут отличаться версией, аналогично заданию 2 (1.19 и 1.20)
+
+[nginx-1.19](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/nginx-1.19.yaml)
+[nginx-1.20](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/nginx-1.20.yaml)
+
 2. При помощи разных ConfigMap сделать две версии приложения — веб-страницы.
+
+Создаем два ConfigMap, которые будут отличаться содержанием index.html (там будут указаны версии приложений, то есть 1.19 и 1.20 соответственно)
+
+[ConfigMap-1.19](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ConfigMap-1.19.yaml)
+[ConfigMap-1.20](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ConfigMap-1.20.yaml)
+
+<img width="422" alt="deployments" src="https://github.com/user-attachments/assets/de23b9ef-3b6a-4d1c-8aba-62235136870c">
+
+## Проверяем, что все успешно стартовало
+
+<img width="335" alt="started configmap" src="https://github.com/user-attachments/assets/f9e3423d-44b6-413c-a814-1bced3f3b4f7">
+
+## Запускаем сервисы и проверяем ip адреса
+
+<img width="454" alt="services" src="https://github.com/user-attachments/assets/9d6ec49e-7376-4a4f-93e4-34ca6c15f249">
+
+
 3. С помощью ingress создать канареечный деплоймент, чтобы можно было часть трафика перебросить на разные версии приложения.
 
 ### Правила приёма работы
