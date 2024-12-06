@@ -278,6 +278,53 @@ root@kuber:~/Kubernetes14-Update_Apps#
 
 3. С помощью ingress создать канареечный деплоймент, чтобы можно было часть трафика перебросить на разные версии приложения.
 
+[ingress](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ingress.yaml)
+
+## Включаем данное правило и проверяем работоспособность
+
+kubectl apply -f ingress.yaml
+kubectl get ingress
+curl localhost
+
+Приложение не доступно, проверяем прямой доступ к сервисам
+
+<img width="301" alt="not work" src="https://github.com/user-attachments/assets/924de7cb-0f64-4c90-a0dc-3a6892c580f4">
+
+<img width="445" alt="check app" src="https://github.com/user-attachments/assets/27366aa5-efa8-4def-902c-87353688263e">
+
+Сервисы работают корректно, следовательно - проблемы связаны с конфигурацией ingress.
+По результатам траблшутинга получили информацию об отсутствии установленного ingress-контроллера в нашем кластере.
+Устанавливаем ingress-контроллер nginx
+
+<img width="446" alt="installed ingress-controller" src="https://github.com/user-attachments/assets/7ac18982-d2c6-4245-83f8-b4da5a692154">
+
+Результат не изменился, пробуем разделить наш ingress.yaml на 2 файла с разными правилами для каждой версии приложения
+ingress.yaml для nginx-1.19
+
+[ingress-nginx-1.19](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ingress-nginx-1.19.yaml)
+
+ingress.yaml для nginx-1.20
+
+[ingress-nginx-1.20](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ingress-nginx-1.20.yaml)
+
+В данной конфигурации получается, что 50% трафика должно идти на канареечный сервис.
+Запускаем ingress правила
+
+<img width="386" alt="new ingress rules" src="https://github.com/user-attachments/assets/5920309b-99d3-47fb-8792-265110067cee">
+
+## Также нужно удалить ingress (kubectl delete ingress <name>)
+## Затем проверяем работу, выполнив ряд запросов на localhost, наблюдаем, что трафик попадает на оба приложения
+
+<img width="529" alt="curl localhost" src="https://github.com/user-attachments/assets/a1922401-afd9-43e7-b9a1-b7948c2bd520">
+
+Получившиемя манифесты:
+
+deployments - [nginx-1.19](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/nginx-1.19.yaml), [nginx-1.20](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/nginx-1.20.yaml);
+ConfigMap - [ConfigMap-1.19](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ConfigMap-1.19.yaml), [ConfigMap-1.20](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ConfigMap-1.20.yaml);
+services - [nginx-svc-1.19.yaml](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/nginx-svc-1.19.yaml), [nginx-svc-1.20.yaml](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/nginx-svc-1.20.yaml);
+ingress - [ingress-nginx-1.19.yaml](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ingress-nginx-1.19.yaml), [ingress-nginx-1.20.yaml](https://github.com/sash3939/Kubernetes14-Update_Apps/blob/main/ingress-nginx-1.19.yaml)
+
+
 ### Правила приёма работы
 
 1. Домашняя работа оформляется в своем Git-репозитории в файле README.md. Выполненное домашнее задание пришлите ссылкой на .md-файл в вашем репозитории.
