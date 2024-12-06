@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-1-20
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Version 1</title>
+    </head>
+    <body>
+        <h1>This is Version of the webpage created for NGINX-1.20</h1>
+    </body>
+    </html>

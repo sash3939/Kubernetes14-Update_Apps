@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-1-20
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-1.20
+  template:
+    metadata:
+      labels:
+        app: nginx-1.20
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.20
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-1-20
